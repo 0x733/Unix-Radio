@@ -7,6 +7,12 @@
     --text-secondary: #b3b3b3;
 }
 
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
 body {
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     background: var(--background);
@@ -17,6 +23,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .radio-player {
@@ -64,6 +71,7 @@ body {
     cursor: pointer;
     font-weight: 600;
     transition: all 0.3s ease;
+    min-width: 100px;
 }
 
 .btn:hover {
@@ -81,14 +89,34 @@ body {
 }
 
 .volume-control {
+    position: relative;
     display: flex;
     align-items: center;
     gap: 12px;
+    padding: 10px 0;
 }
 
 .volume-icon {
     font-size: 20px;
     color: var(--text-secondary);
+    user-select: none;
+}
+
+.volume-value {
+    position: absolute;
+    right: 0;
+    top: -20px;
+    background: var(--primary);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+}
+
+.volume-control:hover .volume-value {
+    opacity: 1;
 }
 
 input[type="range"] {
@@ -97,6 +125,7 @@ input[type="range"] {
     height: 4px;
     background: rgba(255, 255, 255, 0.1);
     border-radius: 2px;
+    cursor: pointer;
 }
 
 input[type="range"]::-webkit-slider-thumb {
@@ -127,6 +156,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.3s ease;
+    user-select: none;
 }
 
 .station:hover {
@@ -161,4 +191,46 @@ input[type="range"]::-webkit-slider-thumb:hover {
     margin-top: 16px;
     color: var(--text-secondary);
     font-size: 14px;
+}
+
+@media (max-width: 768px) {
+    body {
+        padding: 12px;
+    }
+
+    .radio-player {
+        padding: 16px;
+        border-radius: 12px;
+    }
+
+    .controls {
+        padding: 12px;
+    }
+
+    .playback-controls {
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        flex: 1;
+        min-width: 120px;
+        padding: 14px 20px;
+    }
+
+    .volume-control {
+        padding: 15px 0;
+    }
+
+    input[type="range"] {
+        height: 6px;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+        width: 20px;
+        height: 20px;
+    }
+
+    .station {
+        padding: 20px 16px;
+    }
 }
