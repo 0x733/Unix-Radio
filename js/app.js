@@ -8,11 +8,22 @@ class RadioApp {
         this.audio = new AudioEngine();
         this.ui = new RadioUI(document.getElementById('radio-app'));
         this.currentStation = null;
+        this.isPlaying = false;
         this.init();
     }
 
     init() {
-        this.ui.render(stations, this.currentStation);
+        this.updateUI();
+        this.bindEvents();
+    }
+
+    updateUI() {
+        this.ui.render(
+            stations, 
+            this.currentStation, 
+            this.isPlaying,
+            this.audio.getVolume()
+        );
         this.bindEvents();
     }
 
@@ -21,22 +32,49 @@ class RadioApp {
             const station = stations.find(s => s.id === stationId);
             if (station) {
                 if (this.currentStation?.id === station.id) {
-                    this.audio.stop();
-                    this.currentStation = null;
+                    if (this.isPlaying) {
+                        this.audio.pause();
+                        this.isPlaying = false;
+                    } else {
+                        this.audio.resume()
+                            .then(() => this.isPlaying = true)
+                            .catch(console.error);
+                    }
                 } else {
+                    this.currentStation = station;
                     this.audio.play(station.url)
-                        .then(() => {
-                            this.currentStation = station;
-                            this.ui.render(stations, this.currentStation);
-                        })
+                        .then(() => this.isPlaying = true)
                         .catch(console.error);
                 }
-                this.ui.render(stations, this.currentStation);
+                this.updateUI();
+            }
+        });
+
+        this.ui.onPlayClick(() => {
+            if (this.currentStation) {
+                if (this.isPlaying) {
+                    this.audio.pause();
+                    this.isPlaying = false;
+                } else {
+                    this.audio.resume()
+                        .then(() => this.isPlaying = true)
+                        .catch(console.error);
+                }
+                this.updateUI();
+            }
+        });
+
+        this.ui.onStopClick(() => {
+            if (this.currentStation) {
+                this.audio.stop();
+                this.isPlaying = false;
+                this.updateUI();
             }
         });
 
         this.ui.onVolumeChange(value => {
             this.audio.setVolume(value);
+            this.updateUI();
         });
     }
 }
