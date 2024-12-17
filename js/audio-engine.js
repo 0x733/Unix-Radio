@@ -1,22 +1,46 @@
 // js/audio-engine.js
 export class AudioEngine {
-    constructor() {
+    constructor(volumeController) {
         this.audio = new Audio();
         this.audio.preload = 'none';
-        this._volume = 1;
-        this.audio.volume = this._volume;
+        this.volumeController = volumeController;
+        
+        this.volumeController.addListener(volume => {
+            this.audio.volume = volume;
+        });
+        
+        this.audio.volume = this.volumeController.getVolume();
+        this._initMobileAudio();
     }
 
-    play(url) {
-        if (this.audio.src !== url) {
-            this.audio.src = url;
+    _initMobileAudio() {
+        const unlockAudio = () => {
+            this.audio.play().then(() => {
+                this.audio.pause();
+                this.audio.currentTime = 0;
+                document.removeEventListener('touchstart', unlockAudio);
+            }).catch(() => {});
+        };
+        
+        document.addEventListener('touchstart', unlockAudio, { once: true });
+    }
+
+    async play(url) {
+        try {
+            if (this.audio.src !== url) {
+                this.audio.src = url;
+            }
+            await this.audio.play();
+        } catch (error) {
+            console.error('Playback error:', error);
+            throw error;
         }
-        return this.audio.play();
     }
 
     stop() {
         this.audio.pause();
         this.audio.currentTime = 0;
+        this.audio.src = '';
     }
 
     pause() {
@@ -27,15 +51,7 @@ export class AudioEngine {
         if (this.audio.src) {
             return this.audio.play();
         }
-    }
-
-    setVolume(value) {
-        this._volume = value;
-        this.audio.volume = value;
-    }
-
-    getVolume() {
-        return this._volume;
+        return Promise.reject(new Error('No audio source'));
     }
 
     isPlaying() {
