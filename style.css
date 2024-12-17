@@ -1,0 +1,42 @@
+/* style.css */
+body {
+    font-family: monospace;
+    background: #1d1f21;
+    color: #c5c8c6;
+    margin: 0;
+    padding: 20px;
+}
+
+.radio-player {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.station {
+    display: flex;
+    padding: 10px;
+    border: 1px solid #373b41;
+    margin: 5px 0;
+    cursor: pointer;
+}
+
+.station:hover {
+    background: #282a2e;
+}
+
+.station.playing {
+    background: #373b41;
+}
+
+.controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding: 10px;
+    border: 1px solid #373b41;
+    margin-bottom: 10px;
+}
+
+.volume {
+    flex: 1;
+}
