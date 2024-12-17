@@ -2,6 +2,7 @@
 export class RadioUI {
     constructor(container) {
         this.container = container;
+        this._volumeUpdateTimeout = null;
     }
 
     render(stations, currentStation, isPlaying, volume) {
@@ -22,13 +23,16 @@ export class RadioUI {
                     </div>
                     
                     <div class="volume-control">
-                        <span class="volume-icon">🔊</span>
+                        <span class="volume-icon">
+                            ${volume <= 0 ? '🔇' : volume < 0.5 ? '🔉' : '🔊'}
+                        </span>
                         <input type="range" 
                                class="volume" 
                                min="0" 
                                max="1" 
                                step="0.01" 
                                value="${volume}">
+                        <span class="volume-value">${Math.round(volume * 100)}%</span>
                     </div>
                 </div>
 
@@ -78,6 +82,22 @@ export class RadioUI {
 
     onVolumeChange(callback) {
         const volume = this.container.querySelector('.volume');
-        volume?.addEventListener('input', (e) => callback(e.target.value));
+        if (volume) {
+            volume.addEventListener('input', (e) => {
+                e.stopPropagation();
+                clearTimeout(this._volumeUpdateTimeout);
+                this._volumeUpdateTimeout = setTimeout(() => {
+                    callback(e.target.value);
+                }, 50);
+            });
+
+            volume.addEventListener('touchstart', (e) => {
+                e.stopPropagation();
+            });
+
+            volume.addEventListener('touchmove', (e) => {
+                e.stopPropagation();
+            });
+        }
     }
 }
