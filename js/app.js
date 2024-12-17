@@ -2,19 +2,28 @@
 import { stations } from './config.js';
 import { AudioEngine } from './audio-engine.js';
 import { RadioUI } from './ui.js';
+import { VolumeController } from './volume-controller.js';
 
 class RadioApp {
     constructor() {
-        this.audio = new AudioEngine();
+        this.volumeController = new VolumeController();
+        this.audio = new AudioEngine(this.volumeController);
         this.ui = new RadioUI(document.getElementById('radio-app'));
         this.currentStation = null;
         this.isPlaying = false;
+        
+        this.volumeController.addListener(() => this.updateUI());
+        
         this.init();
     }
 
     init() {
         this.updateUI();
         this.bindEvents();
+        
+        window.addEventListener('orientationchange', () => {
+            setTimeout(() => this.updateUI(), 100);
+        });
     }
 
     updateUI() {
@@ -22,7 +31,7 @@ class RadioApp {
             stations, 
             this.currentStation, 
             this.isPlaying,
-            this.audio.getVolume()
+            this.volumeController.getVolume()
         );
         this.bindEvents();
     }
@@ -73,10 +82,15 @@ class RadioApp {
         });
 
         this.ui.onVolumeChange(value => {
-            this.audio.setVolume(value);
-            this.updateUI();
+            this.volumeController.setVolume(value);
         });
     }
+}
+
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(console.error);
+    });
 }
 
 new RadioApp();
